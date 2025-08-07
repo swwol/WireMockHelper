@@ -1,0 +1,11 @@
+[{
+	"name": "catMock",
+	"port": 8080,
+  "scheme": "https",
+	"host": "catfact.ninja"
+}, {
+	"name": "fruitMock",
+	"port": 8081,
+  "scheme": "https",
+	"host": "fruityvice.com"
+}]

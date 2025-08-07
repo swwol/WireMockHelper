@@ -1,0 +1,34 @@
+{
+  "id" : "163f9d59-c5b4-423d-9a62-7b9a808baaba",
+  "name" : "api_fruit_apple",
+  "request" : {
+    "url" : "/api/fruit/apple",
+    "method" : "GET",
+    "headers" : {
+      "X-Test-Scenario" : {
+        "equalTo" : "-[WireMockDemoUITests test_example_variantToOneEndpoint_usingClosureSyntax]"
+      },
+      "Accept" : {
+        "equalTo" : "*/*"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"name\":\"Banana\",\"id\":6,\"family\":\"Rosaceae\",\"order\":\"Rosales\",\"genus\":\"Malus\",\"nutritions\":{\"calories\":52,\"fat\":0.4,\"sugar\":10.3,\"carbohydrates\":11.4,\"protein\":0.3}}",
+    "headers" : {
+      "X-Frame-Options" : "DENY",
+      "Cache-Control" : "no-cache, no-store, max-age=0, must-revalidate",
+      "Server" : "nginx/1.16.1",
+      "X-Content-Type-Options" : "nosniff",
+      "Expires" : "0",
+      "Pragma" : "no-cache",
+      "X-XSS-Protection" : "1; mode=block",
+      "Date" : "Thu, 07 Aug 2025 15:43:28 GMT",
+      "Content-Type" : "application/json"
+    }
+  },
+  "uuid" : "163f9d59-c5b4-423d-9a62-7b9a808baaba",
+  "persistent" : true,
+  "insertionIndex" : 3
+}
