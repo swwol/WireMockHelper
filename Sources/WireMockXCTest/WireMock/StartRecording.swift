@@ -3,7 +3,7 @@ import Foundation
 extension WireMock {
   public func startRecording(
     persist: Bool = true,
-    captureHeaders: [String] = ["Accept", "Content-Type", "Authorization", "X-Test-Scenario"]
+    captureHeaders: [String] = ["Accept", "Content-Type", "Authorization", "X-Correlation-ID", "X-Idempotency-Key"]
   ) async -> Result<Void, Error> {
     
     let url = localServerURL.appendingPathComponent("__admin/recordings/start")
