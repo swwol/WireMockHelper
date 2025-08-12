@@ -16,6 +16,7 @@ public enum BaseURLSwapper {
           let host = url.host,
           let port = map[host]
     else {
+      print("didn't find a match for \(url)")
       return url
     }
 
