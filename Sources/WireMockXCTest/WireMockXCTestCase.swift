@@ -10,7 +10,7 @@ open class WireMockXCTestCase: XCTestCase {
   public var wireMocks: [WireMock] = []
   public var mode: Mode = .playback
 
-  public func setUp(mode: Mode = .playback, cleanKeyChain: Bool = true) {
+  public func setUp(mode: Mode = .playback, mappingConfigFromHost: String? = nil) {
     super.setUp()
     guard let url = Bundle(for: type(of: self)).url(forResource: "wiremock_config", withExtension: "json") else {
       XCTFail("Could not find wiremock_config.json in test bundle")
@@ -33,10 +33,6 @@ open class WireMockXCTestCase: XCTestCase {
 
     app.launchEnvironment["MOCK_URL_PORT_MAP"] = jsonString
     app.launchEnvironment["WIREMOCK_TEST_NAME"] = name
-    if cleanKeyChain {
-      app.launchArguments += ["--clean-keychain"]
-    }
-
     self.mode = mode
 
     if mode == .record {
@@ -66,15 +62,77 @@ open class WireMockXCTestCase: XCTestCase {
           return success
         }
       }
-
-
       Task {
         await startRecordingAndLaunchApp()
       }
     } else {
-      self.app.launch()
+      if let mappingConfigFromHost,
+         let url = Bundle(for: type(of: self)).url(forResource: "config", withExtension: "json"),
+         let hostMock = wireMocks.first(where: { $0.host == mappingConfigFromHost }){
+        do {
+          let data = try Data(contentsOf: url)
+          let transformed = try swapBaseURLs(in: data, with: mappings)
+          let transformedJsonString = String(data: transformed, encoding: .utf8)!
+          print(transformedJsonString)
+          Task {
+            await hostMock.stubbedResponse(request: .init(method: "GET", url: "/ios-retail-appstore/msconfig-v2.json"), response: .init(body: transformedJsonString))
+            await self.app.launch()
+          }
+        } catch {
+          XCTFail("Failed to decode mock config: \(error)")
+          return
+        }
+      } else {
+        app.launch()
+      }
     }
     continueAfterFailure = false
+  }
+
+  private func jsonToDictionary(_ json: Data) throws -> [String: Any] {
+    let object = try JSONSerialization.jsonObject(with: json, options: [])
+    guard let dictionary = object as? [String: Any] else {
+      throw NSError(domain: "InvalidJSON", code: 0, userInfo: [NSLocalizedDescriptionKey: "Root is not a dictionary"])
+    }
+    return dictionary
+  }
+
+  private func swapBaseURLs(in data: Data, with mappings: [String: Int]) throws -> Data {
+    var dictionary = try jsonToDictionary(data)
+    for (key, value) in dictionary {
+      if let stringValue = value as? String {
+        dictionary[key] = swapBaseURL(for: stringValue, with: mappings) as Any
+      }
+      if var stringsValue = value as? [String] {
+        stringsValue = stringsValue.map { swapBaseURL(for: $0, with: mappings)}
+        dictionary[key] = stringsValue as Any
+      }
+    }
+
+    return try JSONSerialization.data(withJSONObject: dictionary, options: [])
+  }
+
+  private func swapBaseURL(for string: String, with mappings: [String: Int]) -> String {
+    guard let url = URL(string: string) else {
+      return string
+    }
+    return swapBaseURL(for: url, with: mappings).absoluteString
+  }
+
+  private func swapBaseURL(for url: URL, with mappings: [String: Int]) -> URL {
+    guard let host = url.host,
+    let port = mappings[host]
+    else {
+      print("didn't find a match for \(url)")
+      return url
+    }
+    var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+    components?.scheme = "http"
+    components?.host = "localhost"
+    components?.port = port
+    components?.path = url.path
+    print("Swapping base URL from \(url) to \(String(describing: components?.url))")
+    return components?.url ?? url
   }
 
   private func startRecordingAndLaunchApp() async {
