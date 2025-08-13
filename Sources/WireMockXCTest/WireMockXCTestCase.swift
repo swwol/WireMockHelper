@@ -10,7 +10,7 @@ open class WireMockXCTestCase: XCTestCase {
   public var wireMocks: [WireMock] = []
   public var mode: Mode = .playback
 
-  public func setUp(mode: Mode = .playback) {
+  public func setUp(mode: Mode = .playback, cleanKeyChain: Bool = true) {
     super.setUp()
     guard let url = Bundle(for: type(of: self)).url(forResource: "wiremock_config", withExtension: "json") else {
       XCTFail("Could not find wiremock_config.json in test bundle")
@@ -33,6 +33,9 @@ open class WireMockXCTestCase: XCTestCase {
 
     app.launchEnvironment["MOCK_URL_PORT_MAP"] = jsonString
     app.launchEnvironment["WIREMOCK_TEST_NAME"] = name
+    if cleanKeyChain {
+      app.launchArguments += ["--clean-keychain"]
+    }
 
     self.mode = mode
 
