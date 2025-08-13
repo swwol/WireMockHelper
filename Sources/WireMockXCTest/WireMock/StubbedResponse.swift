@@ -23,11 +23,11 @@ extension WireMock {
         return .failure(WireMockError.invalidResponse)
       }
 
-      if httpResponse.statusCode == 200 {
+      if httpResponse.statusCode == 201 {
         print("✅ WireMock made stub for request")
         return .success(())
       } else {
-        print("❌ Failed to start make stub. Status code: \(httpResponse.statusCode)")
+        print("❌ Failed to make stub. Status code: \(httpResponse.statusCode)")
         return .failure(WireMockError.httpError(httpResponse.statusCode))
       }
     } catch {
@@ -38,11 +38,20 @@ extension WireMock {
 }
 
 public struct StubRequest: Codable {
+  public init(method: String, url: String) {
+    self.method = method
+    self.url = url
+  }
   let method: String
   let url: String
 }
 
 public struct StubResponse: Codable {
+  public init(body: String, headers: [String: String] = [:], status: Int = 200) {
+    self.body = body
+    self.headers = headers
+    self.status = status
+  }
   let body: String
   let headers: [String: String]
   let status: Int
