@@ -29,7 +29,7 @@ open class WireMockXCTestCase: XCTestCase {
       XCTFail("Failed to decode mock config: \(error)")
       return
     }
-    guard let hostMock = wireMocks.first(where: { configURL.contains($0.host)}) else {
+    guard let hostMock = wireMocks.first(where: { configURL.contains("http://localhost:\($0.port)")}) else {
       XCTFail("No WireMock defined hosting config")
       return
     }
