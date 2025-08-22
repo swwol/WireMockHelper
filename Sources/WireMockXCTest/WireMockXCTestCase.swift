@@ -8,7 +8,7 @@ public enum Mode {
 open class WireMockXCTestCase: XCTestCase {
 
   enum Error: Swift.Error {
-    case noHostWireMock
+    case noConfigFile
   }
 
   public var app: XCUIApplication!
@@ -16,7 +16,7 @@ open class WireMockXCTestCase: XCTestCase {
   public var mode: Mode = .playback
   public var hostMock: WireMock!
 
-  public func setUp(mode: Mode = .playback, configURL: String) {
+  public func setUp(mode: Mode = .playback) {
     super.setUp()
     guard let url = Bundle(for: type(of: self)).url(forResource: "wiremock_config", withExtension: "json") else {
       XCTFail("Could not find wiremock_config.json in test bundle")
@@ -29,13 +29,13 @@ open class WireMockXCTestCase: XCTestCase {
       XCTFail("Failed to decode mock config: \(error)")
       return
     }
-    guard let hostMock = wireMocks.first(where: { configURL.contains("http://localhost:\($0.port)")}) else {
+    guard let hostMock = wireMocks.first(where: { $0.isConfigProvider }) else {
       XCTFail("No WireMock defined hosting config")
       return
     }
     self.hostMock = hostMock
     self.app = XCUIApplication()
-    app.launchEnvironment["UITEST_CONFIG_URL"] = configURL
+    app.launchEnvironment["CONFIG_BASE_URL"] = hostMock.baseURL
     self.mode = mode
 
     if mode == .record {
@@ -76,7 +76,7 @@ open class WireMockXCTestCase: XCTestCase {
   }
 
   private func stubConfigURL(wireMock: WireMock) async -> Result<Void, Swift.Error> {
-    guard let url = Bundle(for: type(of: self)).url(forResource: "config", withExtension: "json") else { return .failure(Error.noHostWireMock)}
+    guard let url = Bundle(for: type(of: self)).url(forResource: "config", withExtension: "json") else { return .failure(Error.noConfigFile)}
     do {
       let jsonString = try String(contentsOf: url, encoding: .utf8)
       print(jsonString)
