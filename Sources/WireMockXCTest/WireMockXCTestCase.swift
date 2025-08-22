@@ -35,7 +35,7 @@ open class WireMockXCTestCase: XCTestCase {
     }
     self.hostMock = hostMock
     self.app = XCUIApplication()
-    app.launchEnvironment["CONFIG_BASE_URL"] = hostMock.baseURL
+    app.launchEnvironment["CONFIG_BASE_URL"] = "http://localhost:\(hostMock.port)"
     self.mode = mode
 
     if mode == .record {
