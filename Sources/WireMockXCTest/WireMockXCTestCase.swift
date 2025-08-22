@@ -82,9 +82,36 @@ open class WireMockXCTestCase: XCTestCase {
     }
     do {
       let jsonString = try String(contentsOf: url, encoding: .utf8)
-      return await wireMock.stubbedResponse(request: .init(method: configOverride.method, url: configOverride.endpoint),
-                                            response: .init(body: jsonString))
-    } catch {
+      return await withTaskGroup(of: Result<Void, Swift.Error>.self) { group in
+        group.addTask {
+          await wireMock.stubbedResponse(
+            request: .init(method: configOverride.method, url: configOverride.endpoint),
+            response: .init(body: jsonString)
+          )
+        }
+        group.addTask {
+          await wireMock.stubbedResponse(
+            request: .init(method: "GET", url: "/ios/production/version-blacklist.json"),
+            response: .init(body: #"""
+                          {
+                            "minimumSystemVersion": "15.0",
+                            "minimumVersion": "8.47.1",
+                            "outOfDateText": "Sorry, this version of the app is now unsupported. Please update to the latest version.",
+                            "instoreMinimumVersion": "8.47.1",
+                            "instoreOutOfDateText": "Sorry, to use this feature, the app needs to be updated to the latest version"
+                          }
+                          """#)
+          )
+        }
+
+        for await result in group {
+          if case .failure = result {
+            return result
+          }
+        }
+        return .success(())
+      }
+    }catch {
       XCTFail("failed to read config file")
       return .failure(error)
     }
