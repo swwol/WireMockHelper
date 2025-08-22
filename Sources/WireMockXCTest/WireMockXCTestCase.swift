@@ -29,7 +29,7 @@ open class WireMockXCTestCase: XCTestCase {
       XCTFail("Failed to decode mock config: \(error)")
       return
     }
-    guard let hostMock = wireMocks.first(where: { $0.isConfigProvider }) else {
+    guard let hostMock = wireMocks.first(where: { $0.configOverride != nil }) else {
       XCTFail("No WireMock defined hosting config")
       return
     }
@@ -76,11 +76,14 @@ open class WireMockXCTestCase: XCTestCase {
   }
 
   private func stubConfigURL(wireMock: WireMock) async -> Result<Void, Swift.Error> {
-    guard let url = Bundle(for: type(of: self)).url(forResource: "config", withExtension: "json") else { return .failure(Error.noConfigFile)}
+    guard let url = Bundle(for: type(of: self)).url(forResource: "config", withExtension: "json"),
+          let configOverride = wireMock.configOverride else {
+      return .failure(Error.noConfigFile)
+    }
     do {
       let jsonString = try String(contentsOf: url, encoding: .utf8)
-      print(jsonString)
-      return await wireMock.stubbedResponse(request: .init(method: "GET", url: "/ios-retail-appstore/msconfig-v2.json"), response: .init(body: jsonString))
+      return await wireMock.stubbedResponse(request: .init(method: configOverride.method, url: configOverride.endpoint),
+                                            response: .init(body: jsonString))
     } catch {
       XCTFail("failed to read config file")
       return .failure(error)
