@@ -104,6 +104,20 @@ open class WireMockXCTestCase: XCTestCase {
           )
         }
 
+        // stub guest auth
+        if let authWireMock = self.wireMocks.first(where: { $0.name == "oauth"}) {
+          group.addTask {
+            await authWireMock.stubbedResponse(
+              request: .init(method: "GET", url: "/authorize"),
+              response: .init(
+                body: "Redirect to token",
+                headers: ["Location": "mandsapp://application?code=mockGuestAuthCode123"],
+                status: 302
+              )
+            )
+          }
+        }
+
         for await result in group {
           if case .failure = result {
             return result
