@@ -35,10 +35,10 @@ public struct WireMock: Codable {
     self.configOverride = configOverride
   }
   
-  let name: String
+  public let name: String
   let port: Int
   let scheme: String
-  let host: String
+  public let host: String
   let configOverride: ConfigOverride?
 
   var localServerURL: URL {
