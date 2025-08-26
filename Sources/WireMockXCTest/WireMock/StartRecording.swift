@@ -10,7 +10,8 @@ extension WireMock {
       "X-Correlation-ID",
       "X-Idempotency-Key",
       "If-None-Match",
-      "If-Modified-Since"]
+      "If-Modified-Since",
+      "Location",]
   ) async -> Result<Void, Error> {
     
     let url = localServerURL.appendingPathComponent("__admin/recordings/start")
