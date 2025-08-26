@@ -85,13 +85,13 @@ open class WireMockXCTestCase: XCTestCase {
       return await withTaskGroup(of: Result<Void, Swift.Error>.self) { group in
         group.addTask {
           await wireMock.stubbedResponse(
-            request: .init(method: configOverride.method, url: configOverride.endpoint),
+            request: .init(method: configOverride.method, urlPath: configOverride.endpoint),
             response: .init(body: jsonString)
           )
         }
         group.addTask {
           await wireMock.stubbedResponse(
-            request: .init(method: "GET", url: "/ios/production/version-blacklist.json"),
+            request: .init(method: "GET", urlPath: "/ios/production/version-blacklist.json"),
             response: .init(body: #"""
                           {
                             "minimumSystemVersion": "15.0",
@@ -108,7 +108,7 @@ open class WireMockXCTestCase: XCTestCase {
         if let authWireMock = self.wireMocks.first(where: { $0.name == "oauth"}) {
           group.addTask {
             await authWireMock.stubbedResponse(
-              request: .init(method: "GET", url: "/authorize"),
+              request: .init(method: "GET", urlPath: "/authorize"),
               response: .init(
                 body: "Redirect to token",
                 headers: ["Location": "mandsapp://application?code=mockGuestAuthCode123"],

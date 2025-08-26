@@ -38,12 +38,12 @@ extension WireMock {
 }
 
 public struct StubRequest: Codable {
-  public init(method: String, url: String) {
+  public init(method: String, urlPath: String) {
     self.method = method
-    self.url = url
+    self.urlPath = urlPath
   }
   let method: String
-  let url: String
+  let urlPath: String
 }
 
 public struct StubResponse: Codable {
