@@ -111,7 +111,7 @@ open class WireMockXCTestCase: XCTestCase {
               request: .init(method: "GET", urlPath: "/authorize"),
               response: .init(
                 body: "Redirect to token",
-                headers: ["Location": "mandsapp://application?authorization_correlation_id=mock-auth-corr-id&code=mockGuestCode123&state="],
+                headers: ["Location": "mandsapp://application?authorization_correlation_id=18424bf6-268a-4af2-b5bb-1c76d8470689&code=YE-_SJA7mQ1W9eJlIIpZQL5kpwKTxVoBCsAOfH7B3fk.U_AvIzQNGG-nTYAMPjv5Oz9D2vhfF7J4lk7ji7YJIsM&state="],
                 status: 302
               )
             )
