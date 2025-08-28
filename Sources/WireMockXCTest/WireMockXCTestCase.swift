@@ -68,7 +68,7 @@ open class WireMockXCTestCase: XCTestCase {
       }
     } else {
       Task {
-        let _ = await stubConfigURL(wireMock: hostMock)
+       // let _ = await stubConfigURL(wireMock: hostMock)
         await self.app.launch()
       }
     }
