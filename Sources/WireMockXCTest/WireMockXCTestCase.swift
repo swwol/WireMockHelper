@@ -11,7 +11,7 @@ open class WireMockXCTestCase: XCTestCase {
   public var wireMocks: [WireMock] = []
   public var hostMock: WireMock!
 
-  public override func setUp() {
+  open override func setUp() {
     super.setUp()
     guard let url = Bundle(for: type(of: self)).url(forResource: "wiremock_config", withExtension: "json") else {
       XCTFail("Could not find wiremock_config.json in test bundle")
