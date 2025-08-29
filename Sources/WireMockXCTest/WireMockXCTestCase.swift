@@ -34,7 +34,6 @@ open class WireMockXCTestCase: XCTestCase {
     self.app = XCUIApplication()
     app.launchEnvironment["CONFIG_BASE_URL"] = "http://localhost:\(hostMock.port)"
     continueAfterFailure = false
-    let tasks = startServers()
 
     addTeardownBlock {
       Task {
@@ -43,20 +42,17 @@ open class WireMockXCTestCase: XCTestCase {
     }
   }
 
-  public func configureServers() async {
+  public func configureServers() async throws {
     await hostMock.server.appendRoute("/ios/production/msconfig-v2.json") { request in
       return HTTPResponse.init(statusCode: .ok, body: "hello".data(using: .utf8)!)
     }
+
+    try await hostMock.server.waitUntilListening()
+    print("host server is ready")
   }
 
-
-  public func startServers() -> [Task<(), Swift.Error>] {
-    let task = Task {
-      try await hostMock.server.run()
-      print("running host mock")
-    }
-
-    return [task]
+  public func startServers() async throws {
+    try await hostMock.server.run()
   }
 
   public func stopServers() async {
