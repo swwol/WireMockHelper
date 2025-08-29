@@ -41,7 +41,7 @@ open class WireMockXCTestCase: XCTestCase {
     }
   }
 
-  private func configureServers() async {
+  public func configureServers() async {
     await hostMock.server.appendRoute("/ios/production/msconfig-v2.json") { request in
       return HTTPResponse.init(statusCode: .ok, body: "hello".data(using: .utf8)!)
     }
