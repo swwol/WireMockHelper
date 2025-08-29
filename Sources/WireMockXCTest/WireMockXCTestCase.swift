@@ -52,7 +52,9 @@ open class WireMockXCTestCase: XCTestCase {
   }
 
   public func startServers() async throws {
-    try await hostMock.server.run()
+    let server = HTTPServer(port: UInt16(hostMock.port))
+    try await server.run()
+    print("started")
   }
 
   public func stopServers() async {
