@@ -12,8 +12,15 @@ let package = Package(
             targets: ["WireMockXCTest"]),
         .library(name: "WireMockHelper", targets: ["WireMockHelper"])
     ],
+    dependencies: [
+      .package(url: "https://github.com/swhitty/FlyingFox.git", .upToNextMajor(from: "0.24.1"))
+    ],
     targets: [
-        .target(name: "WireMockXCTest"),
+        .target(
+          name: "WireMockXCTest",
+          dependencies: [.product(name: "FlyingFox", package: "FlyingFox")]
+        ),
         .target(name: "WireMockHelper"),
+        .testTarget(name: "WireMockHelperTests", dependencies: ["FlyingFox"])
     ]
 )

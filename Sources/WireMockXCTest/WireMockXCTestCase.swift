@@ -1,4 +1,5 @@
 import Foundation
+import FlyingFox
 import XCTest
 
 open class WireMockXCTestCase: XCTestCase {
@@ -32,6 +33,54 @@ open class WireMockXCTestCase: XCTestCase {
     self.app = XCUIApplication()
     app.launchEnvironment["CONFIG_BASE_URL"] = "http://localhost:\(hostMock.port)"
     continueAfterFailure = false
+
+    addTeardownBlock {
+      Task {
+        await self.stopServers()
+      }
+    }
+  }
+
+  private func configureServers() async {
+    await hostMock.server.appendRoute("/ios/production/msconfig-v2.json") { request in
+      return HTTPResponse.init(statusCode: .ok, body: "hello".data(using: .utf8)!)
+    }
+  }
+
+
+  public func startServers() async throws {
+    try await withThrowingTaskGroup(of: Void.self) { group in
+      for wireMock in wireMocks {
+        group.addTask {
+          try await wireMock.start()
+        }
+      }
+      try await group.waitForAll()
+    }
+  }
+
+  public func stopServers() async {
+    await withTaskGroup(of: Void.self) { group in
+      for wireMock in wireMocks {
+        group.addTask {
+          await wireMock.stop()
+        }
+      }
+      await group.waitForAll()
+    }
   }
 }
 
+extension WireMock {
+  var server: HTTPServer {
+    HTTPServer(port: UInt16(port))
+  }
+  func start() async throws {
+    try await server.run()
+    print("started \(name)")
+  }
+
+  func stop() async {
+    await server.stop()
+  }
+}
