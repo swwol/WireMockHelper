@@ -12,6 +12,7 @@ open class WireMockXCTestCase: XCTestCase {
   public var wireMocks: [WireMock] = []
   public var hostMock: WireMock!
 
+
   open override func setUp() {
     super.setUp()
     guard let url = Bundle(for: type(of: self)).url(forResource: "wiremock_config", withExtension: "json") else {
@@ -33,6 +34,7 @@ open class WireMockXCTestCase: XCTestCase {
     self.app = XCUIApplication()
     app.launchEnvironment["CONFIG_BASE_URL"] = "http://localhost:\(hostMock.port)"
     continueAfterFailure = false
+    let tasks = startServers()
 
     addTeardownBlock {
       Task {
@@ -48,15 +50,13 @@ open class WireMockXCTestCase: XCTestCase {
   }
 
 
-  public func startServers() async throws {
-    try await withThrowingTaskGroup(of: Void.self) { group in
-      for wireMock in wireMocks {
-        group.addTask {
-          try await wireMock.start()
-        }
-      }
-      try await group.waitForAll()
+  public func startServers() -> [Task<(), Swift.Error>] {
+    let task = Task {
+      try await hostMock.server.run()
+      print("running host mock")
     }
+
+    return [task]
   }
 
   public func stopServers() async {
