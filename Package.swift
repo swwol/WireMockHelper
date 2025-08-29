@@ -13,14 +13,14 @@ let package = Package(
         .library(name: "WireMockHelper", targets: ["WireMockHelper"])
     ],
     dependencies: [
-      .package(url: "https://github.com/swhitty/FlyingFox.git", .upToNextMajor(from: "0.24.1"))
+      .package(url: "https://github.com/httpswift/swifter.git", .upToNextMajor(from: "1.5.0"))
     ],
     targets: [
         .target(
           name: "WireMockXCTest",
-          dependencies: [.product(name: "FlyingFox", package: "FlyingFox")]
+          dependencies: [.product(name: "Swifter", package: "Swifter")]
         ),
         .target(name: "WireMockHelper"),
-        .testTarget(name: "WireMockHelperTests", dependencies: ["FlyingFox"])
+        .testTarget(name: "WireMockHelperTests")
     ]
 )

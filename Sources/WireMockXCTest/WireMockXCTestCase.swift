@@ -1,5 +1,5 @@
 import Foundation
-import FlyingFox
+import Swifter
 import XCTest
 
 open class WireMockXCTestCase: XCTestCase {
@@ -36,49 +36,16 @@ open class WireMockXCTestCase: XCTestCase {
     continueAfterFailure = false
 
     addTeardownBlock {
-      Task {
-        await self.stopServers()
-      }
     }
   }
 
-  public func configureServers() async throws {
-    await hostMock.server.appendRoute("/ios/production/msconfig-v2.json") { request in
-      return HTTPResponse.init(statusCode: .ok, body: "hello".data(using: .utf8)!)
+  public func startServers() throws {
+    let server = HttpServer()
+    server["/ios/production/msconfig-v2.json"] = { request in
+      return .ok(.text("heeeeeeeeee"))
     }
-
-    try await hostMock.server.waitUntilListening()
-    print("host server is ready")
-  }
-
-  public func startServers() async throws {
-    let server = HTTPServer(port: UInt16(hostMock.port))
-    try await server.run()
+    try server.start(8080, forceIPv4: true)
     print("started")
   }
 
-  public func stopServers() async {
-    await withTaskGroup(of: Void.self) { group in
-      for wireMock in wireMocks {
-        group.addTask {
-          await wireMock.stop()
-        }
-      }
-      await group.waitForAll()
-    }
-  }
-}
-
-extension WireMock {
-  var server: HTTPServer {
-    HTTPServer(port: UInt16(port))
-  }
-  func start() async throws {
-    try await server.run()
-    print("started \(name)")
-  }
-
-  func stop() async {
-    await server.stop()
-  }
 }
