@@ -30,7 +30,7 @@ open class WireMockXCTestCase: XCTestCase {
     }
     self.hostMock = hostMock
     self.app = XCUIApplication()
-    app.launchEnvironment["CONFIG_BASE_URL"] = "http://localhost:\(hostMock.port)"
+    app.launchEnvironment["CONFIG_BASE_URL"] = "http://\(hostMock.name).container-dns:8080"
     continueAfterFailure = false
   }
 }
