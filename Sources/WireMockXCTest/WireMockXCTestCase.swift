@@ -22,7 +22,7 @@ open class WireMockXCTestCase: XCTestCase {
     do {
       let data = try Data(contentsOf: configDataUrl)
       self.wireMocks = try JSONDecoder().decode([WireMock].self, from: data)
-      address = try String(contentsOf: configHostURL)
+      address = try String(contentsOf: configHostURL).trimmingCharacters(in: .whitespacesAndNewlines)
     } catch {
       XCTFail("Failed to decode mock config: \(error)")
       return
