@@ -13,13 +13,16 @@ open class WireMockXCTestCase: XCTestCase {
 
   open override func setUp() {
     super.setUp()
-    guard let url = Bundle(for: type(of: self)).url(forResource: "wiremock_config", withExtension: "json") else {
-      XCTFail("Could not find wiremock_config.json in test bundle")
+    guard let configDataUrl = Bundle(for: type(of: self)).url(forResource: "wiremock_config", withExtension: "json"),
+    let configHostURL = Bundle(for: type(of: self)).url(forResource: "wiremock_host", withExtension: "txt") else {
+      XCTFail("Could not find wiremock config files in test bundle")
       return
     }
+    let address: String
     do {
-      let data = try Data(contentsOf: url)
+      let data = try Data(contentsOf: configDataUrl)
       self.wireMocks = try JSONDecoder().decode([WireMock].self, from: data)
+      address = try String(contentsOf: configHostURL)
     } catch {
       XCTFail("Failed to decode mock config: \(error)")
       return
@@ -30,7 +33,7 @@ open class WireMockXCTestCase: XCTestCase {
     }
     self.hostMock = hostMock
     self.app = XCUIApplication()
-    app.launchEnvironment["CONFIG_BASE_URL"] = "http://\(hostMock.name).container-dns:8080"
+    app.launchEnvironment["CONFIG_BASE_URL"] = "http://\(address):8080"
     continueAfterFailure = false
   }
 }
