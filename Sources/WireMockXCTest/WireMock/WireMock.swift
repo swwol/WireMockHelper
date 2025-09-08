@@ -1,4 +1,6 @@
 import Foundation
+import OpenAPIRuntime
+import OpenAPIURLSession
 
 public struct ConfigOverride: Codable {
   let method: String
@@ -48,6 +50,10 @@ public struct WireMock: Codable {
   var baseURL: String {
     scheme + "://" + host
   }
+
+  var client: Client {
+     Client(serverURL: URL(string: "http://localhost:\(port)")!, transport: URLSessionTransport())
+   }
 }
 
 enum WireMockError: Error, LocalizedError {
